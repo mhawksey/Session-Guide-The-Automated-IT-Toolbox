@@ -1,0 +1,68 @@
+# **Creating your own Gemini API credentials**
+
+More details about using the GeminiApp library are available at: [https://github.com/mhawksey/GeminiApp](https://github.com/mhawksey/GeminiApp)
+
+#### **Option 1 \- Google AI Studio API Key (ideal for prototyping)**
+
+1. [Get an API Key](https://ai.google.dev/tutorials/setup).  
+2. Add the [GeminiApp library](http://src/GeminiApp.js) to your project as a new script file.  
+3. In your main script file you can initialize the GeminiApp library by calling the `new GeminiApp(YOUR_APKI_KEY_HERE)`:
+
+```javascript
+const genAI = new GeminiApp(YOUR_APKI_KEY_HERE);
+```
+
+#### **Option 2 \- Vertex AI Cloud Platform project \- scoped user account (prototyping/production)**
+
+This option lets you access Gemini Pro in Vertex AI adding the account you are executing your Google Apps Script project to Google Cloud Project IAM with at least a **Vertex AI User** role.
+
+1. [Select or create a Cloud Platform project](https://console.cloud.google.com/project).  
+2. [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).  
+3. In your Apps Script project settings, check Show `appsscript.json` manifest file in editor.  
+4. Update the `appsscript.json` file with the minimum declared `oauthScopes`:
+
+```javascript
+{
+  "timeZone": "America/Denver",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/script.external_request"
+  ]
+}
+```
+
+5. Add the [GeminiApp library](http://src/GeminiApp.js) to your project as a new script file.  
+6. In your main script file you can initialize the GeminiApp library by calling the `new GeminiApp(configObject)` method providing a [supported region](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini#http_request) and Cloud project ID:
+
+```javascript
+const genAI = new GeminiApp({
+    region: YOUR_PROJECT_LOCATION,
+    project_id: YOUR_PROJECT_ID});
+```
+
+**Note:** Additional users can be added to your Apps Script project by opening IAM & Admin and Granting Access to users with at least the **Vertex AI User** role
+
+#### **Option 3 \- Vertex AI Cloud Platform project \- Service Account (prototyping/production)**
+
+This option lets you access Gemini in Vertex AI adding a Service Account. This lets you use the Gemini API with any user that has access to your Apps Script powered solution. To use a Service Account you need to add the [OAuth2 Apps Script Library](https://github.com/googleworkspace/apps-script-oauth2) to your project.
+
+1. [Select or create a Cloud Platform project](https://console.cloud.google.com/project).  
+2. [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).  
+3. Follow the instructions to [create a Service Account](https://ai.google.dev/examples/slides-advisor#create_a_service_account) and [install service account key](https://ai.google.dev/examples/slides-advisor#create_and_install_service_account_key)  
+4. Follow the steps to [setup the OAuth2 Apps Script Library](https://github.com/googleworkspace/apps-script-oauth2?tab=readme-ov-file#setup) in your Apps Script project.  
+5. Add the [GeminiApp library](http://src/GeminiApp.js) to your project as a new script file.  
+6. In your main script file you can initialize the GeminiApp library by calling the `new GeminiApp(configObject)` method providing a [supported region](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini#http_request) and Service Account key:
+
+```javascript
+const credentials = PropertiesService.getScriptProperties().getProperty("SERVICE_ACCOUNT_KEY");
+const parsedCredentials = JSON.parse(credentials);
+
+const genAI = new GeminiApp({
+  region: YOUR_PROJECT_LOCATION,
+  ...parsedCredentials
+});
+
+```
